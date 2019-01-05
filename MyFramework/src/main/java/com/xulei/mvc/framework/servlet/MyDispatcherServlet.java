@@ -42,6 +42,8 @@ public class MyDispatcherServlet extends HttpServlet {
         doDispatch(req,resp);
     }
 
+
+
     //仿照写doDispatch
     public void doDispatch(HttpServletRequest request, HttpServletResponse response) {
 
@@ -53,6 +55,39 @@ public class MyDispatcherServlet extends HttpServlet {
         //3：由适配器来反射调用我们具体的方法。
         ha.handle(request, response, handler);
 
+    }
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+
+        MyApplicationContext context = new MyApplicationContext(config.getInitParameter(LOCATION));
+
+        // 请求解析
+        this.initMultipartResolver(context);
+        // 多语言 国际化
+        this.initLocaleResolver(context);
+        // 主题View层
+        this.initThemeResolver(context);
+
+        //============== 重要 ================
+        // 解析url和Method之间的关系
+        this.initHandlerMappings(context);
+        // 适配器 (匹配过程)
+        this.initHandlerAdapters(context);
+        //============== 重要 ================
+
+
+        // 异常解析
+        this.initHandlerExceptionResolvers(context);
+        // 视图转发
+        this.initRequestToViewNameTranslator(context);
+        //解析模板中的内容（拿到服务器传过来的数据，生成HTML代码）
+        this.initViewResolvers(context);
+
+        this.initFlashMapManager(context);
+
+
+        System.out.println("我的MVCFramework 开始运行了");
     }
 
     /**
@@ -105,38 +140,7 @@ public class MyDispatcherServlet extends HttpServlet {
         return null;
     }
 
-    @Override
-    public void init(ServletConfig config) throws ServletException {
 
-        MyApplicationContext context = new MyApplicationContext(config.getInitParameter(LOCATION));
-
-        // 请求解析
-        this.initMultipartResolver(context);
-        // 多语言 国际化
-        this.initLocaleResolver(context);
-        // 主题View层
-        this.initThemeResolver(context);
-
-        //============== 重要 ================
-        // 解析url和Method之间的关系
-        this.initHandlerMappings(context);
-        // 适配器 (匹配过程)
-        this.initHandlerAdapters(context);
-        //============== 重要 ================
-
-
-        // 异常解析
-        this.initHandlerExceptionResolvers(context);
-        // 视图转发
-        this.initRequestToViewNameTranslator(context);
-        //解析模板中的内容（拿到服务器传过来的数据，生成HTML代码）
-        this.initViewResolvers(context);
-
-        this.initFlashMapManager(context);
-
-
-        System.out.println("我的MVCFramework 开始运行了");
-    }
 
 
     // 解析url和method之间的关系，

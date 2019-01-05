@@ -9,10 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MyApplicationContext {
@@ -58,14 +55,11 @@ public class MyApplicationContext {
             e.printStackTrace();
         }
 
-
         //3:注册 找到所有的class
         String scanPackage = properties.getProperty("scanPackage");
         doRegister(scanPackage);
-
         //4: 实例化需要ioc的对象(就是加了@Service，@Controller)，只要循环class了
         doCreateBean();
-
         //5、注入
         populate();
 
@@ -105,8 +99,6 @@ public class MyApplicationContext {
     private void populate() {
 
         //简单点就是获取了属性字段的名字来设置到实体类中去
-
-
         try {
             if(instanceMap ==null){ return;}
             for (Map.Entry<String,Object> entry:instanceMap.entrySet()) {
@@ -137,6 +129,7 @@ public class MyApplicationContext {
      */
     private void doCreateBean() {
 
+        //检查那些类需要初始化
 
         try {
             if (cache.size() == 0) {
@@ -148,6 +141,9 @@ public class MyApplicationContext {
 //                if (!clazz.isAnnotation()) {
 //                    continue;
 //                }
+                //如果上面有
+
+
                 //如果上面有mycontroller的注解。那么就将类名和类实例保存到map中
                 if (clazz.isAnnotationPresent(MyController.class)) {
                     //获取类名首字母小写。
@@ -161,9 +157,18 @@ public class MyApplicationContext {
                     if (!"".equals(value)) {
                         instanceMap.put(value, clazz.newInstance());
                     }
-                    Class<?>[] interfaces = myService.getClass().getInterfaces();
+
+                    //如果是空的，就用默认规则
+                    //1、类名首字母小写
+                    //如果这个类是接口
+                    //2、可以根据类型类匹配
+                    System.out.println("名称： "+ Arrays.toString(myService.getClass().getInterfaces()));
+                    System.out.println("名称： "+Arrays.toString(clazz.getInterfaces()));
+
+                    Class<?>[] interfaces = clazz.getInterfaces();
                     for (Class<?> anInterface : interfaces) {
-                        instanceMap.put(getFirstLower(anInterface.getName()), clazz.newInstance());
+//                        instanceMap.put(getFirstLower(anInterface.getName()), clazz.newInstance());
+                        instanceMap.put(anInterface.getName(), clazz.newInstance());
                     }
                 }
             }

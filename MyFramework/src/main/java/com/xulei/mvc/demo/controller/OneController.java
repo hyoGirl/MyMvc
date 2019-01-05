@@ -18,7 +18,11 @@ public class OneController {
 
     @MyRequestMapping("/add.json")
     public String add(HttpServletRequest request, HttpServletResponse response){
-        out(response,"this is json string");
+
+        String bookName = oneService.findBookNameById(1);
+
+        out(response,"this is json string"+System.lineSeparator());
+        out(response,"The BookName  is： "+bookName+System.lineSeparator());
         return null;
     }
 
