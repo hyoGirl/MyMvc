@@ -41,6 +41,8 @@ public class OneServiceImpl implements OneService {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        }finally {
+            DBUtils.closeConnection();
         }
         return null;
     }
